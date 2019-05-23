@@ -21,5 +21,48 @@ void promptDisplay()
   
   printf("%s@%s : %s >>",getlogin(),hostName,currentPath); 
 
+}
 
+CommandEntry readCommand()
+{
+  char buffer[10];
+
+  char* finalCommand = malloc(sizeof(char));
+
+  printf(">>> ");
+
+    do
+    {
+      fgets(buffer,10,stdin);
+      if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen-2] != '\\')
+      {
+	buffer[strlen(buffer-1)] = '\0';
+      }
+      fgets(buffer,10,stdin);
+      if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen-2] != '\\')
+      {
+	buffer[strlen(buffer-1)] = '\0';
+      }
+      
+      finalCommand = realloc((void*)finalCommand,strlen(finalCommand)*sizeof(char)+strlen(buffer)*sizeof(char));
+
+      strcat(finalCommand,buffer);
+
+    }while(buffer[strlen(buffer)-1] != '\0');
+    
+    printf("%s",finalCommand);
+    
+    char* programName = strtok(finalCommand,' ');
+    
+    char* newParameter;
+    char** parameters = malloc(1*sizeof(char*));
+    int parameterCount = 0;
+    
+    while((newParameter = strtok(NULL,' ')) != NULL)
+    {
+      parameterCount ++;
+      printf(newParameter);
+    }
+
+    free(finalCommand);
 }
