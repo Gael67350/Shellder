@@ -15,27 +15,24 @@
  *
  * Usage : ls [option] [dir]
  */
+
+bool contains(char const* const*, int, const char*);
+
 int main(int argc, char* argv[]) {
-	char* options;
 	struct dirent **dirs;
 	int n, i;
 
-	options = malloc(sizeof(char));
-
+	// Determine where apply ls
 	if(argc > 1) {
-		// Determine where to apply ls
 		if(argv[argc-1][0] != '-') {
 			n = scandir(argv[argc-1], &dirs, NULL, alphasort);
+		}else if(strlen(argv[argc-1]) == 1){
+			fprintf(stderr, "%s: cannot access '-': No such file or directory", argv[0]);
 		}else{
 			n = scandir(".", &dirs, NULL, alphasort);
 		}
-
-		// Parse options
-		for(int i=1; i<argc; i++) {
-			if(argv[i][0] == '-') {
-				//options = realloc(options, sizeof(options) + sizeof(argv[i]) - sizeof(char));
-			}
-		}
+	}else{
+		n = scandir(".", &dirs, NULL, alphasort);
 	}
 
 	if(n < 0) {
@@ -45,7 +42,7 @@ int main(int argc, char* argv[]) {
 		// List directory contents
 		i = 0;
 		while(i<n) {
-			if(strcmp(".", dirs[i]->d_name) != 0 && strcmp("..", dirs[i]->d_name) != 0 && dirs[i]->d_name[0] != '.') {
+			if((strcmp(".", dirs[i]->d_name) != 0 && strcmp("..", dirs[i]->d_name) != 0 && dirs[i]->d_name[0] != '.') || contains(argv, argc, "-a") || contains(argv, argc, "-al") || contains(argv, argc, "-la")) {
 				if(dirs[i]->d_type == DT_DIR) { // if the type is directory print in blue
 					printf("%s%s", BLUE, dirs[i]->d_name);
 				}else if(access(dirs[i]->d_name, X_OK) == 0) { // if the file is executable print in green
@@ -65,4 +62,19 @@ int main(int argc, char* argv[]) {
 	}
 
 	return 0;
+}
+
+bool contains(char const* const* array, int size, const char* str) {
+	bool found = false;
+	int i=0;
+
+	while(!found && i<size) {
+		if(strcmp(array[i], str) == 0) {
+			found = true;
+		}
+
+		i++;
+	}
+
+	return found;
 }
