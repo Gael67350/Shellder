@@ -13,8 +13,7 @@
 #define DEFAULT_COLOR "\x1B[0m"
 #define GREEN "\x1B[32m"
 #define BLUE "\x1B[34m"
-
-#define FILENAME_SIZE 256
+#define AQUA "\x1B[36m"
 
 /*
  * ls - list directory contents
@@ -140,6 +139,8 @@ bool contains(char const* const* array, int size, const char* str) {
 void displayFilename(struct dirent* dir) {
 	if(dir->d_type == DT_DIR) { // if the type is directory print in blue
 		printf("%s%s", BLUE, dir->d_name);
+	}else if(dir->d_type == DT_LNK) {
+		printf("%s%s", AQUA, dir->d_name);
 	}else if(access(dir->d_name, X_OK) == 0) { // if the file is executable print in green
 		printf("%s%s", GREEN, dir->d_name);
 	}else{
@@ -153,13 +154,19 @@ int displayFile(struct dirent* dir, int nbDigitsFileSize, int nbDigitsFileUsr, i
 	struct stat fileStat;
 	int counter;
 
-        if(stat(dir->d_name, &fileStat) < 0) {
+        if(lstat(dir->d_name, &fileStat) < 0) {
 		fprintf(stderr, "ls: cannot access '%s': %s\n", dir->d_name, strerror(errno));
        		return EXIT_FAILURE;
         }
 
 	// Print file type
-       	printf((S_ISDIR(fileStat.st_mode)) ? "d" : "-");
+	if(S_ISDIR(fileStat.st_mode)) {
+		printf("d");
+	}else if(S_ISLNK(fileStat.st_mode)) {
+		printf("l");
+	}else{
+		printf("-");
+	}
 
         // Print user permissions
         printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
