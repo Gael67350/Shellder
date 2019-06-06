@@ -17,6 +17,15 @@
 int main(int argc, char**argv)
 {
 
+  //building path storage
+  char* programsPath = (char*)(malloc(4096*sizeof(char)));
+  size_t pathLength = 0 ;
+  getcwd(programsPath,pathLength);
+  strcat(programsPath,"/commands/external/");
+
+  printf("%s\n",programsPath);
+
+  
   printf("====================================\n");
   printf("     WELCOME TO SHELLDER V 0.1      \n");
   printf("====================================\n");
@@ -43,7 +52,11 @@ int main(int argc, char**argv)
     else
     {
       //management of external programs
-      
+      if(!(strchr(loadedCommand.programName,'/')!= NULL))
+      {
+	//addition of the path directory header
+	//loadedCommand.programName = strcat("")
+      }
     }
   }
 

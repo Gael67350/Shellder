@@ -1,10 +1,13 @@
-all: createDirectories Shellder
+all: createDirectories externalPrograms Shellder
 
 test: all
 	./bin/Shellder
 
 Shellder: ./bin/commandEntryComponents/entryManagement.o ./bin/Shellder.o ./bin/commands/coreCommands.o
 	gcc -o ./bin/Shellder ./bin/commandEntryComponents/entryManagement.o ./bin/commands/coreCommands.o ./bin/Shellder.o
+
+externalPrograms: ./src/commands/cat.c
+	gcc ./src/commands/cat.c -o ./bin/commands/external/cat
 
 ./bin/commandEntryComponents/entryManagement.o : ./src/commandEntryComponents/entryManagement.c ./src/commandEntryComponents/entryManagement.h
 	gcc -o ./bin/commandEntryComponents/entryManagement.o -c ./src/commandEntryComponents/entryManagement.c -Wall -Werror
@@ -22,4 +25,4 @@ createDirectories:
 
 #	commands directory
 	mkdir ./bin/commands/
-	mkdir ./bin/commands/coreCommands
+	mkdir ./bin/commands/external

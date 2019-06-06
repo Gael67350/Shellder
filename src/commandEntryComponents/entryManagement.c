@@ -10,10 +10,10 @@
 void promptDisplay()
 {
 
-  char* hostName = (char*)(malloc(32));
+  char* hostName = (char*)(malloc(32*sizeof(char)));
   size_t hostSize = 32;
 
-  char* currentPath = (char*)(malloc(4096));
+  char* currentPath = (char*)(malloc(4096*sizeof(char)));
   size_t pathSize = 4096 ;
   
   gethostname(hostName,hostSize);
