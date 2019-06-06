@@ -4,6 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <sys/types.h>
+#include <signal.h>
+
 //std library include
 #include <stdbool.h>
 
@@ -32,6 +35,21 @@ int main(int argc, char**argv)
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
       cd(loadedCommand.parameterCount, loadedCommand.parameters); 
-    } 
+    }
+    else if(strcmp(loadedCommand.programName,"exit")==0)
+    {
+      exitPerformed = true;
+    }
+    else
+    {
+      //management of external programs
+      
+    }
   }
+
+  printf("quitting terminal, killing all child processes\n");
+  signal(SIGQUIT, SIG_IGN);
+  kill(0,SIGQUIT);
+  printf("exit...\n");
+  return 0;
 }
