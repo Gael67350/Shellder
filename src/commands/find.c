@@ -14,16 +14,20 @@
  */
 
 int find(const char*);
+bool contains(char const* const*, int, const char*);
 
 int main(int argc, char* argv[]) {
 	// -name
 	// -exec
+	bool hasNameArg = contains(argv, argc, "-name");
 
 	if(argc > 1) {
-		return find(argv[1]);
+		for(int i=1; i<argc; i++) {
+			find(argv[i]);
+		}
+	}else{
+		find(".");
 	}
-
-	return find(".");
 }
 
 int find(const char* path) {
@@ -36,7 +40,6 @@ int find(const char* path) {
 	}
 
 	printf("%s\n", path); // Print current filename in the standard output
-	close(fd);
 
 	if((n = scandir(path, &dirs, NULL, NULL)) < 0) {
 		fprintf(stderr, "find: %s\n", strerror(errno));
@@ -67,5 +70,22 @@ int find(const char* path) {
 	}
 
 	free(dirs);
+	close(fd);
+
 	return EXIT_SUCCESS;
+}
+
+bool contains(char const* const* array, int size, const char* str) {
+	bool found = false;
+	int i=0;
+
+	while(!found && i<size) {
+		if(strcmp(array[i], str) == 0) {
+			found = true;
+		}
+
+		i++;
+	}
+
+	return found;
 }
