@@ -4,19 +4,20 @@
 #include <errno.h>
 
 #include <stdlib.h>
+#include "coreCommands.h"
 
 /*
  * cd - Change the shell working directory
  *
  * Usage : cd [dir]
  */
-int cd(char* destination) {
+int cd(int argc, char** argv) {
 	int status;
 
-	if(destination == NULL) {
-		status = chdir("..");
+	if(argc = 0) {
+		status = chdir("~/");
 	}else{
-		status = chdir(destination);
+		status = chdir(destination[0]);
 	}
 
 	if(status == -1) {

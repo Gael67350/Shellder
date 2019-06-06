@@ -9,6 +9,7 @@
 
 //local library include
 #include "commandEntryComponents/entryManagement.h"
+#include "commands/coreCommands/coreCommands.h"
 
 int main(int argc, char**argv)
 {
@@ -30,8 +31,7 @@ int main(int argc, char**argv)
 
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
-      printf("cd performed \n");
-    }
-    
+      cd(loadedCommand.parameterCount, loadedCommand.parameters); 
+    } 
   }
 }
