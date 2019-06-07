@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
 	struct dirent **dirs;
 	int n, i;
 	int maxDigitsNLink = 0, maxDigitsUsr = 0, maxDigitsGrp = 0, maxDigitsFileSize = 0;
+	int nbBlockUsed = 0;
 
 	bool hasListArg = (contains(argv, argc, "-l") || contains(argv, argc, "-la") || contains(argv, argc, "-al"));
 	bool hasAllArg = (contains(argv, argc, "-a") || contains(argv, argc, "-la") || contains(argv, argc, "-al"));
@@ -91,10 +92,18 @@ int main(int argc, char* argv[]) {
 			if(fileGrpDigits > maxDigitsGrp) {
 				maxDigitsGrp = fileGrpDigits;
 			}
+
+			// Determine number of block used
+			blkcnt_t fileblocks = fileStat.st_blocks;
+			nbBlockUsed += fileblocks/2;
 		}
 	}
 
 	// Print number of block used
+	if(hasListArg) {
+		printf("total: %d\n", nbBlockUsed);
+	}
+
 	i = 0;
 	while(i<n) {
 		if(isSpecificFile(dirs[i]->d_name) || hasAllArg) {
