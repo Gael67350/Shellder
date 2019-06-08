@@ -14,10 +14,10 @@
 int cd(int argc, char** argv) {
 	int status;
 
-	if(argc == 0) {
+	if(argc == 1) {
 	  status = chdir(getenv("HOME"));
 	}else{
-		status = chdir(argv[0]);
+		status = chdir(argv[1]);
 	}
 
 	if(status == -1) {

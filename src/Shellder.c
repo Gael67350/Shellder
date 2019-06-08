@@ -6,6 +6,7 @@
 
 #include <sys/types.h>
 #include <signal.h>
+#include <sys/wait.h>
 
 //std library include
 #include <stdbool.h>
@@ -19,16 +20,45 @@ int main(int argc, char**argv)
 
   //building path storage
   char* programsPath = (char*)(malloc(4096*sizeof(char)));
-  size_t pathLength = 0 ;
+  size_t pathLength = 4096 ;
   getcwd(programsPath,pathLength);
   strcat(programsPath,"/commands/external/");
 
-  printf("%s\n",programsPath);
-
+  //splash screen
   
-  printf("====================================\n");
-  printf("     WELCOME TO SHELLDER V 0.1      \n");
-  printf("====================================\n");
+  printf("==========================================================================\n");
+  printf("                        WELCOME TO SHELLDER V 0.3                         \n");
+  printf("==========================================================================\n\n");
+
+  printf("               _,.-'\"\"\"''--..._\n");
+  printf("           _,-'               `.\"-..\n");
+  printf("         .\"     _..-'\"'\"\"--._   `.   `-._\n");
+  printf("       ,'   _.-'             `._  `.     `-._\n");
+  printf("      /   .`                    `.  \\        `.\n");
+  printf("     /  .'                        `. `.        `.       _,..\n");
+  printf("   .'  /                            `. `.        `...-\"'    \\\n");
+  printf("  /   /                               _. `.               ,-'\n");
+  printf(" j   /                   ,-\"\"'`.   ,\"'  `. `.           .'\n");
+  printf(" |  .     _..------...__'  \"   |  |   \"   |  `.       ,'\n");
+  printf(" `._...-'\"_,.-\"'        `..__,\"    `._ _,.'`.  `    .'\\\n");
+  printf("   ,\"  _,'             __..-\"\"'`\"'.  ,'    `..  `.     .\n");
+  printf(" ,'  .\"        _..-''\"\"            \\/        `.   \\    '\n");
+  printf(":         _..+'----\"'               `.         `.  \\    \\\n");
+  printf(":      _,'    `-._                               \\  \\    \\\n");
+  printf(" `...-'           `.                              \\  \\\n");
+  printf("                   \\                              \\  \\   .\n");
+  printf("                    \\                              .     '\n");
+  printf("                    / \\                    .        '  `  :	 \n");
+  printf("                  ,'   \\               .    \\        \\  \\  `-,._\n");
+  printf("                ,'    __\\               \\    \\        \\  \\  /._ `.\n");
+  printf("               .  _.\"'   \\               \\    \\        `._'/._ \"-.\\\n");
+  printf("                `\"        `.              `._.'        ,'.-.. `-._ `\n");
+  printf("                            `-._                    _.'.  `,\"`-._ `.`\n");
+  printf("                                `--...__     ___..-\"  \\ `. '     `._`|\n");
+  printf("                                        `\"'\"\" \\   :    \\  `.`.      \"\n");    
+  printf("                                               \\  :     `   `.`.\n");
+  printf("                                                '\":      `.__,.'\n");
+  printf("                                                  `-.....' mh\n\n");
 
   //display shellder here
 
@@ -54,8 +84,30 @@ int main(int argc, char**argv)
       //management of external programs
       if(!(strchr(loadedCommand.programName,'/')!= NULL))
       {
-	//addition of the path directory header
-	//loadedCommand.programName = strcat("")
+	char* tmp = (char*)(malloc(4096*sizeof(char)));
+	
+	tmp = strcpy(tmp,programsPath);
+	strcat(programsPath,loadedCommand.programName);
+	free(loadedCommand.programName);
+	loadedCommand.programName = programsPath;
+	programsPath = tmp;
+      }
+
+      pid_t pid = fork();
+
+      if(pid == 0)
+      {
+	
+	execvp(loadedCommand.programName,loadedCommand.parameters);
+	printf("Program not found\n");
+	return 1;
+      }
+
+      if(!loadedCommand.background)
+      {
+	int programStatus;
+	wait(&programStatus);
+	
       }
     }
   }

@@ -53,22 +53,37 @@ CommandEntry readCommand()
   }while(readed == strlen(buffer));
 
   char* programName = strtok(finalCommand," ");
+
+  char** parameters = (char**)(malloc(sizeof(char*)));
+
+  parameters[0] = (char*)(malloc(strlen(programName)*sizeof(char)));
+  
+  int parameterCount = 0;
+  
+  strcpy(parameters[parameterCount],programName);
+  parameterCount ++;
+  parameters = realloc((void*)parameters,(parameterCount+1)*sizeof(char*));
   
   char* newParameter;
-  char** parameters = malloc(sizeof(char*));
-  int parameterCount = 0;
     
   while((newParameter = strtok(NULL," ")) != NULL)
   {
-    parameters[parameterCount] = newParameter;
+    parameters[parameterCount] = (char*)(malloc(strlen(newParameter)*sizeof(char)));
+    strcpy(parameters[parameterCount],newParameter);
     parameterCount ++;
     parameters = realloc((void*)parameters,(parameterCount+1)*sizeof(char*));
   }
+
+  parameters[parameterCount] = NULL;
+  
 
   struct CommandEntry buildedCommand;
   buildedCommand.programName = programName;
   buildedCommand.parameters = parameters;
   buildedCommand.parameterCount = parameterCount;
+
+  //placeholder for background management
+  buildedCommand.background = false;
   
   return buildedCommand;
 
