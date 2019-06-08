@@ -7,8 +7,12 @@
 #include <pwd.h>
 #include <grp.h>
 #include <time.h>
-#include <math.h>
 #include <errno.h>
+
+#include <math.h>
+
+//std library include
+#include <stdbool.h>
 
 #define DEFAULT_COLOR "\x1B[0m"
 #define GREEN "\x1B[32m"

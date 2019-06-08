@@ -4,15 +4,17 @@ test: all
 	./bin/Shellder
 
 Shellder: ./bin/commandEntryComponents/entryManagement.o ./bin/Shellder.o ./bin/commands/coreCommands.o
-	gcc -o ./bin/Shellder ./bin/commandEntryComponents/entryManagement.o ./bin/commands/coreCommands.o ./bin/Shellder.o
+	gcc -o ./bin/Shellder ./bin/commandEntryComponents/entryManagement.o ./bin/commands/coreCommands.o ./bin/Shellder.o 
 
-externalPrograms: ./src/commands/cat.c
-	gcc ./src/commands/cat.c -o ./bin/commands/external/cat
+externalPrograms: ./src/commands/cat.c ./src/commands/find.c ./src/commands/ls.c
+	gcc ./src/commands/cat.c -o ./bin/commands/external/cat -Wall -Werror
+	gcc ./src/commands/find.c -o ./bin/commands/external/find 
+	gcc ./src/commands/ls.c -o ./bin/commands/external/ls  -lm
 
 ./bin/commandEntryComponents/entryManagement.o : ./src/commandEntryComponents/entryManagement.c ./src/commandEntryComponents/entryManagement.h
 	gcc -o ./bin/commandEntryComponents/entryManagement.o -c ./src/commandEntryComponents/entryManagement.c -Wall -Werror
 
-./bin/Shellder.o :  ./src/Shellder.c ./src/commandEntryComponents/entryManagement.h 
+./bin/Shellder.o :  ./src/Shellder.c ./src/commandEntryComponents/entryManagement.h
 	gcc -o ./bin/Shellder.o -c  ./src/Shellder.c -Wall -Werror
 
 ./bin/commands/coreCommands.o: ./src/commands/coreCommands/cd.c ./src/commands/coreCommands/coreCommands.h

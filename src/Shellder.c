@@ -27,7 +27,7 @@ int main(int argc, char**argv)
   //splash screen
   
   printf("==========================================================================\n");
-  printf("                        WELCOME TO SHELLDER V 0.3                         \n");
+  printf("                        WELCOME TO SHELLDER V 0.5                         \n");
   printf("==========================================================================\n\n");
 
   printf("               _,.-'\"\"\"''--..._\n");
@@ -97,7 +97,6 @@ int main(int argc, char**argv)
 
       if(pid == 0)
       {
-	
 	execvp(loadedCommand.programName,loadedCommand.parameters);
 	printf("Program not found\n");
 	return 1;
@@ -107,7 +106,6 @@ int main(int argc, char**argv)
       {
 	int programStatus;
 	wait(&programStatus);
-	
       }
     }
   }
