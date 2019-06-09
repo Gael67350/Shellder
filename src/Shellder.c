@@ -107,6 +107,10 @@ int main(int argc, char**argv)
 	int programStatus;
 	wait(&programStatus);
       }
+      else
+      {
+	printf("job launched with pid : %d\n",pid);
+      }
     }
   }
 

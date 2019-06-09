@@ -27,6 +27,8 @@ CommandEntry readCommand()
 {
   char buffer[10];
 
+  bool background = false;
+  
   char* finalCommand = malloc(sizeof(char));
   finalCommand[0] = '\0';
   
@@ -36,7 +38,7 @@ CommandEntry readCommand()
     fgets(buffer,10,stdin);
     readed = strlen(buffer);
     
-    if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\')
+    if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\' && buffer[strlen(buffer)-2] != '&')
     {
       buffer[strlen(buffer)-1] = '\0';
     }
@@ -45,6 +47,12 @@ CommandEntry readCommand()
       buffer[strlen(buffer)-2] = ' ';
       buffer[strlen(buffer)-1] = '\0';
       readed = strlen(buffer);
+    }
+    else if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] == '&')
+    {
+      buffer[strlen(buffer)-2] = ' ';
+      buffer[strlen(buffer)-1] = '\0';
+      background = true;
     }
 
     finalCommand = realloc((void*)finalCommand,(strlen(finalCommand)+strlen(buffer))*sizeof(char));
@@ -83,7 +91,7 @@ CommandEntry readCommand()
   buildedCommand.parameterCount = parameterCount;
 
   //placeholder for background management
-  buildedCommand.background = false;
+  buildedCommand.background = background;
   
   return buildedCommand;
 
