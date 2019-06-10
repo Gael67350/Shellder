@@ -82,6 +82,14 @@ int main(int argc, char**argv)
     {
       exitPerformed = true;
     }
+    else if(strcmp(loadedCommand.programName,"setenv") == 0)
+    {
+      setEnv(loadedCommand.parameterCount, loadedCommand.parameters);
+    }
+    else if(strcmp(loadedCommand.programName,"getenv") == 0)
+    {
+      getEnv(loadedCommand.parameterCount, loadedCommand.parameters);
+    }
     else
     {
       //management of external programs
