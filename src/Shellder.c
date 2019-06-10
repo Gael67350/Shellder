@@ -8,6 +8,9 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+//library inclusion for pipes management
+#include <memory.h>
+
 //std library include
 #include <stdbool.h>
 
@@ -71,6 +74,11 @@ int main(int argc, char**argv)
     promptDisplay();
     loadedCommand = readCommand();
 
+    for(int i = 0 ; i<loadedCommand.parameterCount ; i++)
+    {
+      printf("%s\n",loadedCommand.parameters[i]);
+    }
+    
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
       cd(loadedCommand.parameterCount, loadedCommand.parameters); 
@@ -82,7 +90,7 @@ int main(int argc, char**argv)
     else
     {
       //management of external programs
-      if(!(strchr(loadedCommand.programName,'/')!= NULL))
+      if(strchr(loadedCommand.programName,'/')== NULL)
       {
 	char* tmp = (char*)(malloc(4096*sizeof(char)));
 	

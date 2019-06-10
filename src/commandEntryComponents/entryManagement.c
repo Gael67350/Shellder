@@ -76,12 +76,34 @@ CommandEntry readCommand()
     
   while((newParameter = strtok(NULL," ")) != NULL)
   {
-    parameters[parameterCount] = (char*)(malloc(strlen(newParameter)*sizeof(char)));
-    strcpy(parameters[parameterCount],newParameter);
+
+    if(strchr(newParameter,'"') == NULL)
+    {
+      parameters[parameterCount] = (char*)(malloc(strlen(newParameter)*sizeof(char)));
+      strcpy(parameters[parameterCount],newParameter);
+    }
+    else
+    {
+      parameters[parameterCount] = (char*)(malloc((strlen(newParameter))*sizeof(char)));
+      strcpy(parameters[parameterCount],++newParameter);
+      strcat(parameters[parameterCount]," ");
+      
+      while(((newParameter = strtok(NULL," ")) != NULL) && (strchr(newParameter,'"') == NULL))
+      {
+	parameters[parameterCount] = realloc((void*)parameters[parameterCount],(strlen(parameters[parameterCount])+strlen(newParameter)+1)*sizeof(char));
+	strcat(parameters[parameterCount],newParameter);
+	strcat(parameters[parameterCount]," ");
+      }
+
+      parameters[parameterCount] = realloc((void*)parameters[parameterCount],(strlen(parameters[parameterCount])+strlen(newParameter))*sizeof(char));
+      strcat(parameters[parameterCount],newParameter);
+      parameters[parameterCount][strlen(parameters[parameterCount])-1]='\0';
+      
+    }
+    
     parameterCount ++;
     parameters = realloc((void*)parameters,(parameterCount+1)*sizeof(char*));
   }
-
   parameters[parameterCount] = NULL;
   
 

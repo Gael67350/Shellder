@@ -10,6 +10,11 @@ typedef struct CommandEntry
   char** parameters;
   int parameterCount;
   bool background;
+
+  //pipingManagement
+  bool inputPiped;
+  bool outputPiped;
+
 } CommandEntry ;
   
 void promptDisplay();
