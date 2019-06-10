@@ -73,11 +73,6 @@ int main(int argc, char**argv)
     
     promptDisplay();
     loadedCommand = readCommand();
-
-    for(int i = 0 ; i<loadedCommand.parameterCount ; i++)
-    {
-      printf("%s\n",loadedCommand.parameters[i]);
-    }
     
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
