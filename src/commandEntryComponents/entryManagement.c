@@ -60,6 +60,49 @@ CommandEntry readCommand()
     
   }while(readed == strlen(buffer));
 
+  struct CommandEntry buildedCommand;
+  
+  //pipes between program management
+  
+  //external redirection pipes management
+
+  char* redirectionPath;
+
+  printf("%s\n",finalCommand);
+
+  buildedCommand.inputPiped = false;
+  buildedCommand.outputPiped = false;
+  
+  
+  if(!(strchr(finalCommand,'>')==NULL))
+  {
+
+    buildedCommand.outputPiped = true;
+      
+    finalCommand = strtok(finalCommand,">");
+    redirectionPath = strtok(NULL,">");
+
+    if(redirectionPath[0] == ' ')
+    {
+      redirectionPath++;
+    }
+    
+  }
+
+  if(!(strchr(finalCommand,'<')==NULL))
+  {
+    buildedCommand.outputPiped = true;
+    
+    finalCommand = strtok(finalCommand,"<");
+    redirectionPath = strtok(NULL,"<");
+
+    if(redirectionPath[0] == ' ')
+    {
+      redirectionPath++;
+    }
+    
+  }
+  
   char* programName = strtok(finalCommand," ");
 
   char** parameters = (char**)(malloc(sizeof(char*)));
@@ -106,14 +149,14 @@ CommandEntry readCommand()
   }
   parameters[parameterCount] = NULL;
   
-
-  struct CommandEntry buildedCommand;
   buildedCommand.programName = programName;
   buildedCommand.parameters = parameters;
   buildedCommand.parameterCount = parameterCount;
 
   //placeholder for background management
   buildedCommand.background = background;
+
+  buildedCommand.pipePath = redirectionPath;
   
   return buildedCommand;
 

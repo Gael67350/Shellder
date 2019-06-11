@@ -15,6 +15,8 @@ typedef struct CommandEntry
   bool inputPiped;
   bool outputPiped;
 
+  char* pipePath;
+  
 } CommandEntry ;
   
 void promptDisplay();
