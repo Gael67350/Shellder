@@ -65,40 +65,49 @@ CommandEntry readCommand()
   //pipes between program management
   
   //external redirection pipes management
-
-  char* redirectionPath;
-
+  
   printf("%s\n",finalCommand);
 
-  buildedCommand.inputPiped = false;
-  buildedCommand.outputPiped = false;
+  buildedCommand.inputRedirected = false;
+  buildedCommand.outputRedirected = false;
+  buildedCommand.errorRedirected = false;
   
-  
-  if(!(strchr(finalCommand,'>')==NULL))
+  if(strchr(finalCommand,'>')!=NULL)
   {
-
-    buildedCommand.outputPiped = true;
+    buildedCommand.outputRedirected = true;
       
     finalCommand = strtok(finalCommand,">");
-    redirectionPath = strtok(NULL,">");
-
-    if(redirectionPath[0] == ' ')
+    if(finalCommand[strlen(finalCommand)-1] == '2')
     {
-      redirectionPath++;
+      buildedCommand.errorRedirected = true;
+      
+      finalCommand[strlen(finalCommand)-1] = '\0';
+      buildedCommand.ERedirectionPath = strtok(NULL,">");
+      
+      if(buildedCommand.ERedirectionPath[0] == ' ')
+      {
+	buildedCommand.ERedirectionPath++;
+      }
     }
-    
+    else if((buildedCommand.ORedirectionPath = strtok(NULL,">"))!=NULL)
+    {
+      if(buildedCommand.ORedirectionPath[0] == ' ')
+      {
+	buildedCommand.ORedirectionPath++;
+      }
+    }
   }
 
-  if(!(strchr(finalCommand,'<')==NULL))
+  if(strchr(finalCommand,'<')!=NULL)
   {
-    buildedCommand.outputPiped = true;
+    buildedCommand.inputRedirected = true;
     
     finalCommand = strtok(finalCommand,"<");
-    redirectionPath = strtok(NULL,"<");
+    buildedCommand.IRedirectionPath = strtok(NULL,"<");
 
-    if(redirectionPath[0] == ' ')
+    if(buildedCommand.IRedirectionPath[0] == ' ')
     {
-      redirectionPath++;
+      buildedCommand.IRedirectionPath++;
     }
     
   }
@@ -155,8 +164,6 @@ CommandEntry readCommand()
 
   //placeholder for background management
   buildedCommand.background = background;
-
-  buildedCommand.pipePath = redirectionPath;
   
   return buildedCommand;
 

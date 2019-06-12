@@ -12,10 +12,13 @@ typedef struct CommandEntry
   bool background;
 
   //pipingManagement
-  bool inputPiped;
-  bool outputPiped;
+  bool inputRedirected;
+  bool outputRedirected;
+  bool errorRedirected;
 
-  char* pipePath;
+  char* IRedirectionPath;
+  char* ORedirectionPath;
+  char* ERedirectionPath;
   
 } CommandEntry ;
   
