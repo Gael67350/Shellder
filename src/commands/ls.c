@@ -239,17 +239,23 @@ void displayFileWithDetails(struct stat *s, const char* path, int nbDigitsFileSi
 }
 
 void displayFile(struct stat *s, const char* path) {
-	if(S_ISDIR(s->st_mode)) { // if the type is directory print in blue
-		printf("%s%s", BLUE, basename((char*) path));
-	}else if(S_ISLNK(s->st_mode)) { // if the type is symlink print in aqua
-		printf("%s%s", AQUA, basename((char*) path));
-	}else if(access(path, X_OK) == 0) { // if the file is executable print in green
-		printf("%s%s", GREEN, basename((char*) path));
-	}else{
-		printf("%s%s", DEFAULT_COLOR, basename((char*) path));
-	}
+	int useColor = isatty(STDOUT_FILENO);
 
-	printf("%s", DEFAULT_COLOR);
+	if(useColor == 1) {
+		if(S_ISDIR(s->st_mode)) { // if the type is directory print in blue
+			printf("%s%s", BLUE, basename((char*) path));
+		}else if(S_ISLNK(s->st_mode)) { // if the type is symlink print in aqua
+			printf("%s%s", AQUA, basename((char*) path));
+		}else if(access(path, X_OK) == 0) { // if the file is executable print in green
+			printf("%s%s", GREEN, basename((char*) path));
+		}else{
+			printf("%s%s", DEFAULT_COLOR, basename((char*) path));
+		}
+
+		printf("%s", DEFAULT_COLOR);
+	}else{
+		printf("%s", basename((char*) path));
+	}
 }
 
 void displayFileList(struct dirent **dirs, int nbFile, bool hasAllArg) {
