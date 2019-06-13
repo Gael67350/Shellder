@@ -18,6 +18,7 @@
 int find(const char*, char const* const*, int);
 int execute(const char*, char const* const*, int);
 int containsAt(char const* const*, int, const char*);
+void notEnoughMemory();
 
 int main(int argc, char* argv[]) {
 	// -name
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
 		char** cmd = (char**) malloc(sizeof(char*));
 
 		if(path == NULL || cmd == NULL) {
-                	fprintf(stderr, "find: not enough memory\n");
+                	notEnoughMemory();
                 	return EXIT_FAILURE;
                 }
 
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
 			path[0] = (char*) malloc(1 * sizeof(char));
 
 			if(path[0] == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+				notEnoughMemory();
 				return EXIT_FAILURE;
 			}
 
@@ -54,14 +55,14 @@ int main(int argc, char* argv[]) {
 				path = (char**) realloc(path, (nbPath + 1) * sizeof(char*));
 
 				if(path == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
+					notEnoughMemory();
                                         return EXIT_FAILURE;
 				}
 
 				path[j] = (char*) malloc(strlen(argv[i]));
 
 				if(path[j] == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
+					notEnoughMemory();
 					return EXIT_FAILURE;
 				}
 
@@ -82,14 +83,14 @@ int main(int argc, char* argv[]) {
 			cmd = (char**) realloc(cmd, (cmdArgc + 2) * sizeof(char*));
 
 			if(cmd == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+				notEnoughMemory();
 				return EXIT_FAILURE;
 			}
 
 			cmd[j] = (char*) malloc(strlen(argv[i]));
 
 			if(cmd[j] == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+				notEnoughMemory();
                                 return EXIT_FAILURE;
 			}
 
@@ -175,7 +176,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 		char** cmdcp = (char**) malloc((cmdArgc + 1) * sizeof(char*));
 
 		if(cmdcp == NULL) {
-                	fprintf(stderr, "find: not enough memory\n");
+                	notEnoughMemory();
                 	return EXIT_FAILURE;
                	}
 
@@ -183,7 +184,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 			cmdcp[i] = (char*) malloc(strlen(cmd[i]));
 
 			if(cmdcp[i] == NULL) {
-                        	fprintf(stderr, "find: not enough memory\n");
+                        	notEnoughMemory();
                                	return EXIT_FAILURE;
                         }
 
@@ -193,7 +194,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 				cmdcp[i] = (char*) realloc(cmdcp[i], strlen(path) + 1);
 
 				if(cmdcp[i] == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
+					notEnoughMemory();
 					return EXIT_FAILURE;
 				}
 
@@ -234,4 +235,8 @@ int containsAt(char const* const* array, int size, const char* str) {
 	}
 
 	return -1;
+}
+
+void notEnoughMemory() {
+	fprintf(stderr, "find: not enough memory\n");
 }
