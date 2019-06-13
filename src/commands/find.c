@@ -15,17 +15,15 @@
  *
  */
 
-int find(const char*, char const* const*, int = 0);
-int execute(const char*, char const* const*, int = 0);
+int find(const char*, char const* const*, int);
+int execute(const char*, char const* const*, int);
 int containsAt(char const* const*, int, const char*);
 
 int main(int argc, char* argv[]) {
 	// -name
-	// -exec
 
-	//fprintf(stderr, "find: missing argument to `-exec`\n");
 	if(argc > 1) {
-		int execPos = containsAt(argv, argc, "-exec");
+		int execPos = containsAt((char const* const*) argv, argc, "-exec");
 
 		int nbPath = 0, cmdArgc = 0, j = 0;
 
@@ -37,11 +35,11 @@ int main(int argc, char* argv[]) {
                 	return EXIT_FAILURE;
                 }
 
-		if(execPos <= 0) {
+		if(execPos <= 0) { // No -exec option in the command line
 			for(int i=1; i<argc; i++) {
-				find(argv[i], NULL);
+				find(argv[i], NULL, 0);
 			}
-		}else if(execPos == 1) {
+		}else if(execPos == 1) { // -exec option is the 2nd parameter of the command line
 			path[0] = (char*) malloc(1 * sizeof(char));
 
 			if(path[0] == NULL) {
@@ -101,7 +99,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		for(int i=0; i<nbPath; i++) {
-			find(path[i], cmd, cmdArgc);
+			find(path[i], (char const* const*) cmd, cmdArgc);
 		}
 
 		for(int i=0; i<cmdArgc; i++) {
@@ -110,7 +108,7 @@ int main(int argc, char* argv[]) {
 
 		free(cmd);
 	}else{
-		find(".", NULL);
+		find(".", NULL, 0);
 	}
 }
 
@@ -157,8 +155,6 @@ int find(const char* path, char const* const* cmd, int cmdArgc) {
 				find(concat, cmd, cmdArgc);
 			}else{
 				execute(concat, cmd, cmdArgc);
-
-				//printf("%s\n", concat);
 			}
 
 			free(dirs[i]);
