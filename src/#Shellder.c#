@@ -73,8 +73,6 @@ int main(int argc, char**argv)
     
     promptDisplay();
     loadedCommand = readCommand();
-
-    printf("%s\n %s\n %s\n %s\n",loadedCommand.programName,loadedCommand.IRedirectionPath,loadedCommand.ORedirectionPath,loadedCommand.ERedirectionPath);
     
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
@@ -110,9 +108,9 @@ int main(int argc, char**argv)
 
       if(pid == 0)
       {
-	
 	execvp(loadedCommand.programName,loadedCommand.parameters);
-	printf("Program not found\n");
+	printf
+	  ("Program not found\n");
 	return 1;
       }
 

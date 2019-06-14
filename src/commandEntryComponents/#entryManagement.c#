@@ -83,7 +83,12 @@ CommandEntry readCommand()
   {
     buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
   }
-  
+
+  if(!buildedCommand.inputRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+
   //error redirection management
   buildedCommand.errorRedirected = getRedirectError(&finalCommand,&buildedCommand.ERedirectionPath);
 

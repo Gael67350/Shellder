@@ -26,4 +26,8 @@ void promptDisplay();
 
 CommandEntry readCommand();
 
+bool getRedirectInput(char** entry, char** pathFound);
+bool getRedirectError(char** entry, char** pathFound);
+bool getRedirectOutput(char** entry,char** pathFound);
+
 #endif
