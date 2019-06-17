@@ -110,6 +110,8 @@ int main(int argc, char**argv)
 
       if(pid == 0)
       {
+
+	
 	
 	execvp(loadedCommand.programName,loadedCommand.parameters);
 	printf("Program not found\n");

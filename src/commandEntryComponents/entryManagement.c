@@ -61,7 +61,19 @@ CommandEntry readCommand()
       strcat(finalCommand,buffer);
     }
   }while(readed == strlen(buffer));
- 
+
+
+  struct CommandEntry buildedCommand = buildCommand(finalCommand);
+
+  // --> gael met ta merde ici <--
+  
+  buildedCommand.background = background;
+  
+  return buildedCommand;
+}
+
+struct CommandEntry buildCommand(char* inputManaged)
+{
   struct CommandEntry buildedCommand;
   
   //pipes between program management
@@ -74,25 +86,25 @@ CommandEntry readCommand()
 
 
   //redirection management from initial string
-  buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
+  buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
 
-  buildedCommand.outputRedirected = getRedirectOutput(&finalCommand,&buildedCommand.ORedirectionPath);
+  buildedCommand.outputRedirected = getRedirectOutput(&inputManaged,&buildedCommand.ORedirectionPath);
 
   if(!buildedCommand.inputRedirected)
   {
-    buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
+    buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
   }
   
-  buildedCommand.errorRedirected = getRedirectError(&finalCommand,&buildedCommand.ERedirectionPath);
+  buildedCommand.errorRedirected = getRedirectError(&inputManaged,&buildedCommand.ERedirectionPath);
 
   if(!buildedCommand.inputRedirected)
   {
-    buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
+    buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
   }
   
   if(!buildedCommand.outputRedirected)
   {
-    buildedCommand.outputRedirected = getRedirectOutput(&finalCommand,&buildedCommand.ORedirectionPath);
+    buildedCommand.outputRedirected = getRedirectOutput(&inputManaged,&buildedCommand.ORedirectionPath);
   }
   
   //redirection management from input
@@ -164,7 +176,7 @@ CommandEntry readCommand()
     buildedCommand.errorRedirected = getRedirectError(&buildedCommand.ORedirectionPath,&buildedCommand.ERedirectionPath);
   }
   
-  char* programName = strtok(finalCommand," ");
+  char* programName = strtok(inputManaged," ");
 
   char** parameters = (char**)(malloc(sizeof(char*)));
 
@@ -214,10 +226,7 @@ CommandEntry readCommand()
   buildedCommand.parameters = parameters;
   buildedCommand.parameterCount = parameterCount;
 
-  buildedCommand.background = background;
-  
   return buildedCommand;
-
 }
 
 bool getRedirectInput(char** entry, char** pathFound)
