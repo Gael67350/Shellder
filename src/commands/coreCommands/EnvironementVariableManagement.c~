@@ -1,0 +1,25 @@
+//system library include
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+
+void setEnv(int argc, char** argv)
+{
+if(argc<3)
+  {
+printf("Usage : setenv [variable name] [value to set]");
+  }
+  else
+  {
+}
+}
+
+void getEnv(int argc, char** argv)
+{
+  
+  if(argc<2)
+  {
+    printf("Usage : getenv [variable to display]");
+  }
+}

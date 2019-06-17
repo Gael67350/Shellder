@@ -1,0 +1,15 @@
+#ifndef _entryManagement_h
+#define _entryManagement_h
+
+struct commandEntry
+{
+  char* programName;
+  char** parameters;
+  int parameterCount;
+};
+  
+void promptDisplay();
+
+commandEntry readCommand();
+
+#endif
