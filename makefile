@@ -6,10 +6,11 @@ test: all
 Shellder: ./bin/commandEntryComponents/entryManagement.o ./bin/Shellder.o ./bin/commands/coreCommandsCd.o ./bin/commands/coreCommandsEvtVar.o
 	gcc -o ./bin/Shellder ./bin/commandEntryComponents/entryManagement.o ./bin/commands/coreCommandsCd.o ./bin/commands/coreCommandsEvtVar.o ./bin/Shellder.o 
 
-externalPrograms: ./src/commands/cat.c ./src/commands/find.c ./src/commands/ls.c
+externalPrograms: ./src/commands/cat.c ./src/commands/find.c ./src/commands/ls.c ./src/commands/cp.c
 	gcc ./src/commands/cat.c -o ./bin/commands/external/cat -Wall -Werror
 #	gcc ./src/commands/find.c -o ./bin/commands/external/find 
 	gcc ./src/commands/ls.c -o ./bin/commands/external/ls  -lm
+	gcc ./src/commands/cp.c -o ./bin/commands/external/cp -Wall -Werror
 
 ./bin/commandEntryComponents/entryManagement.o : ./src/commandEntryComponents/entryManagement.c ./src/commandEntryComponents/entryManagement.h
 	gcc -o ./bin/commandEntryComponents/entryManagement.o -c ./src/commandEntryComponents/entryManagement.c -Wall -Werror
