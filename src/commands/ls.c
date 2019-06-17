@@ -197,7 +197,7 @@ void displayFileWithDetails(struct stat *s, const char* path, int nbDigitsFileSi
 	printf(" ");
 
 	// Print number of link
-	printf("%d ", s->st_nlink);
+	printf("%lu ", s->st_nlink);
 
 	counter = 0;
         while(counter < (nbDigitsFileNLink-(floor(log10(abs(s->st_nlink))) + 1))) {

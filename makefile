@@ -8,8 +8,8 @@ Shellder: ./bin/commandEntryComponents/entryManagement.o ./bin/Shellder.o ./bin/
 
 externalPrograms: ./src/commands/cat.c ./src/commands/find.c ./src/commands/ls.c ./src/commands/cp.c
 	gcc ./src/commands/cat.c -o ./bin/commands/external/cat -Wall -Werror
-#	gcc ./src/commands/find.c -o ./bin/commands/external/find 
-	gcc ./src/commands/ls.c -o ./bin/commands/external/ls  -lm
+	gcc ./src/commands/find.c -o ./bin/commands/external/find -Wall -Werror
+	gcc ./src/commands/ls.c -o ./bin/commands/external/ls -lm -Wall -Werror
 	gcc ./src/commands/cp.c -o ./bin/commands/external/cp -Wall -Werror
 
 ./bin/commandEntryComponents/entryManagement.o : ./src/commandEntryComponents/entryManagement.c ./src/commandEntryComponents/entryManagement.h
