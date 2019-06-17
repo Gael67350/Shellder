@@ -11,14 +11,29 @@ typedef struct CommandEntry
   int parameterCount;
   bool background;
 
-  //pipingManagement
-  bool inputPiped;
-  bool outputPiped;
+  //fileRedirectionManagement
+  bool inputRedirected;
+  bool outputRedirected;
+  bool errorRedirected;
 
+  char* IRedirectionPath;
+  char* ORedirectionPath;
+  char* ERedirectionPath;
+
+  //pipe management
+  bool piped;
+  struct CommandEntry* pipedCommand;
+  
 } CommandEntry ;
   
 void promptDisplay();
 
 CommandEntry readCommand();
+
+bool getRedirectInput(char** entry, char** pathFound);
+bool getRedirectError(char** entry, char** pathFound);
+bool getRedirectOutput(char** entry,char** pathFound);
+struct CommandEntry buildCommand(char* inputManaged);
+
 
 #endif

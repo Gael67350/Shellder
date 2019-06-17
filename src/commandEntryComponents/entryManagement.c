@@ -37,30 +37,146 @@ CommandEntry readCommand()
   {
     fgets(buffer,10,stdin);
     readed = strlen(buffer);
-    
-    if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\' && buffer[strlen(buffer)-2] != '&')
-    {
-      buffer[strlen(buffer)-1] = '\0';
-    }
-    else if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] == '\\')
-    {
-      buffer[strlen(buffer)-2] = ' ';
-      buffer[strlen(buffer)-1] = '\0';
-      readed = strlen(buffer);
-    }
-    else if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] == '&')
-    {
-      buffer[strlen(buffer)-2] = ' ';
-      buffer[strlen(buffer)-1] = '\0';
-      background = true;
-    }
 
-    finalCommand = realloc((void*)finalCommand,(strlen(finalCommand)+strlen(buffer))*sizeof(char));
-    strcat(finalCommand,buffer);
-    
+    if(readed > 0)
+    {
+      if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\' && buffer[strlen(buffer)-2] != '&')
+      {
+	buffer[strlen(buffer)-1] = '\0';
+      }
+      else if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] == '\\')
+      {
+	buffer[strlen(buffer)-2] = ' ';
+	buffer[strlen(buffer)-1] = '\0';
+	readed = strlen(buffer);
+      }
+      else if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] == '&')
+      {
+	buffer[strlen(buffer)-2] = ' ';
+	buffer[strlen(buffer)-1] = '\0';
+	background = true;
+      }
+
+      finalCommand = realloc((void*)finalCommand,(strlen(finalCommand)+strlen(buffer))*sizeof(char));
+      strcat(finalCommand,buffer);
+    }
   }while(readed == strlen(buffer));
 
-  char* programName = strtok(finalCommand," ");
+
+  struct CommandEntry buildedCommand = buildCommand(finalCommand);
+
+  // --> gael met ta merde ici <--
+  
+  buildedCommand.background = background;
+  
+  return buildedCommand;
+}
+
+struct CommandEntry buildCommand(char* inputManaged)
+{
+  struct CommandEntry buildedCommand;
+  
+  //pipes between program management
+  
+  //external redirection pipes management
+
+  buildedCommand.inputRedirected = false;
+  buildedCommand.outputRedirected = false;
+  buildedCommand.errorRedirected = false;
+
+
+  //redirection management from initial string
+  buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
+
+  buildedCommand.outputRedirected = getRedirectOutput(&inputManaged,&buildedCommand.ORedirectionPath);
+
+  if(!buildedCommand.inputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
+  }
+  
+  buildedCommand.errorRedirected = getRedirectError(&inputManaged,&buildedCommand.ERedirectionPath);
+
+  if(!buildedCommand.inputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&inputManaged,&buildedCommand.IRedirectionPath);
+  }
+  
+  if(!buildedCommand.outputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&inputManaged,&buildedCommand.ORedirectionPath);
+  }
+  
+  //redirection management from input
+  if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+  
+  //redirection management from output
+  if(!buildedCommand.inputRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ORedirectionPath,&buildedCommand.IRedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.ORedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+
+
+  //parsing input again in case of input discover in the output
+  if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+
+  //parsing the error field
+  if(!buildedCommand.inputRedirected && buildedCommand.errorRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ERedirectionPath,&buildedCommand.IRedirectionPath);
+  }
+  
+  if(!buildedCommand.outputRedirected && buildedCommand.errorRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.ERedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+  
+  //parsing input and output again if needed.
+
+  //redirection management from input
+  if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+  
+  //redirection management from output
+  if(!buildedCommand.inputRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ORedirectionPath,&buildedCommand.IRedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.ORedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+  
+  char* programName = strtok(inputManaged," ");
 
   char** parameters = (char**)(malloc(sizeof(char*)));
 
@@ -106,16 +222,83 @@ CommandEntry readCommand()
   }
   parameters[parameterCount] = NULL;
   
-
-  struct CommandEntry buildedCommand;
   buildedCommand.programName = programName;
   buildedCommand.parameters = parameters;
   buildedCommand.parameterCount = parameterCount;
 
-  //placeholder for background management
-  buildedCommand.background = background;
-  
   return buildedCommand;
-
 }
 
+bool getRedirectInput(char** entry, char** pathFound)
+{
+  char* tmp = strrchr(*entry,'<');
+   
+  if(tmp!=NULL)
+  {   
+    *tmp = '\0';
+
+    tmp += 1;
+    if(*tmp == ' ')
+      tmp += 1;
+    
+    *pathFound = tmp;     
+     return true;
+   }
+   else
+   {
+     return false;
+   }
+}
+
+bool getRedirectError(char** entry, char** pathFound)
+{
+  char* tmp = strrchr(*entry,'>');
+  
+  if(tmp !=NULL)
+  {
+    tmp -= 1;
+    if(*tmp == '2')
+    {;
+      *tmp = '\0';
+
+      tmp+=2;
+      if(*tmp == ' ')
+	tmp += 1;
+    
+      *pathFound = tmp;
+
+      return true;
+    }
+  }
+    
+  return false;
+  
+}
+
+bool getRedirectOutput(char** entry,char** pathFound)
+{
+
+  char* tmp = strrchr(*entry,'>');
+
+  if(tmp != NULL)
+  {
+    tmp-=1;
+
+    if(*tmp != '2')
+    {
+
+      tmp +=1;
+      *tmp = '\0';
+
+      tmp += 1;
+      if(*tmp == ' ')
+	tmp += 1;
+    
+      *pathFound = tmp;
+      
+      return true;
+    }
+  }
+    
+  return false;
+}

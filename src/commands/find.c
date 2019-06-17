@@ -6,115 +6,131 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <dirent.h>
+#include <fnmatch.h>
+#include <libgen.h>
 #include <errno.h>
 
 /*
- * find -
+ * find - search for files in a directory hierarchy
  *
  * Usage: find [path...] [expression]
  *
  */
 
-int find(const char*, char const* const*, int = 0);
-int execute(const char*, char const* const*, int = 0);
+int find(const char*, char const* const*, int, const char*);
+int execute(const char*, char const* const*, int, const char*);
 int containsAt(char const* const*, int, const char*);
+char** getCmdLineAfter(char const* const*, int*, int);
+char** getCmdLineBefore(char const* const*, int*, int);
+void notEnoughMemory();
 
 int main(int argc, char* argv[]) {
-	// -name
-	// -exec
+	int status = EXIT_SUCCESS;
 
-	//fprintf(stderr, "find: missing argument to `-exec`\n");
 	if(argc > 1) {
-		int execPos = containsAt(argv, argc, "-exec");
+		int execPos = containsAt((char const* const*) argv, argc, "-exec");
+		int namePos = containsAt((char const* const*) argv, argc, "-name");
 
-		int nbPath = 0, cmdArgc = 0, j = 0;
-
-		char** path = (char**) malloc(sizeof(char*));
-		char** cmd = (char**) malloc(sizeof(char*));
-
-		if(path == NULL || cmd == NULL) {
-                	fprintf(stderr, "find: not enough memory\n");
-                	return EXIT_FAILURE;
-                }
-
-		if(execPos <= 0) {
+		if(execPos == -1 && namePos == -1) { // The command line doesn't contain any option
 			for(int i=1; i<argc; i++) {
-				find(argv[i], NULL);
+				if(find(argv[i], NULL, 0, NULL) < 0) {
+					status = EXIT_FAILURE;
+				}
 			}
-		}else if(execPos == 1) {
-			path[0] = (char*) malloc(1 * sizeof(char));
 
-			if(path[0] == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+			return status;
+		}
+
+		int nbCmd = argc, nbPath = argc;
+
+		char** cmds = NULL;
+		char** paths = NULL;
+		char* pattern = NULL;
+
+		if(execPos != -1 && namePos != -1) { // The command line contains both -name and -exec options
+			if(namePos > execPos) {
+                        	fprintf(stderr, "find: `-name` option cannot be used after `-exec` option\n");
+                        	return EXIT_FAILURE;
+                	}
+
+			cmds = getCmdLineAfter((char const* const*) argv, &nbCmd, execPos);
+
+			if((execPos-namePos) > 2) {
+				fprintf(stderr, "find: too many arguments after `-name` option\n");
+				return EXIT_FAILURE;
+			}else if((execPos-namePos) < 2) {
+				fprintf(stderr, "find: missing argument to `-name`\n");
 				return EXIT_FAILURE;
 			}
 
-			strcpy(path[0], ".");
-			nbPath++;
-		}else{
-			for(int i=0; i<execPos; i++) {
-				path = (char**) realloc(path, (nbPath + 1) * sizeof(char*));
+			paths = getCmdLineBefore((char const* const*) argv, &nbPath, namePos);
+			pattern = argv[namePos+1];
 
-				if(path == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
-                                        return EXIT_FAILURE;
-				}
-
-				path[j] = (char*) malloc(strlen(argv[i]));
-
-				if(path[j] == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
-					return EXIT_FAILURE;
-				}
-
-				strcpy(path[j], argv[i]);
-				nbPath++;
-				j++;
-			}
-		}
-
-		if(execPos == argc-1) {
-			fprintf(stderr, "find: missing argument to `-exec`\n");
-			return EXIT_FAILURE;
-		}
-
-		j=0;
-
-		for(int i=execPos+1; i<argc; i++) {
-			cmd = (char**) realloc(cmd, (cmdArgc + 2) * sizeof(char*));
-
-			if(cmd == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+			if(cmds == NULL || paths == NULL) {
+				fprintf(stderr, "find: %s\n", strerror(errno));
 				return EXIT_FAILURE;
 			}
+		}else if(execPos != -1) { // The command line contains only -exec option
+			cmds = getCmdLineAfter((char const* const*) argv, &nbCmd, execPos);
+			paths = getCmdLineBefore((char const* const*) argv, &nbPath, execPos);
 
-			cmd[j] = (char*) malloc(strlen(argv[i]));
+			if(cmds == NULL || paths == NULL) {
+                                fprintf(stderr, "find: %s\n", strerror(errno));
+                                return EXIT_FAILURE;
+                        }
+		}else{ // The command line contains only -name option
+			paths = getCmdLineBefore((char const* const*) argv, &nbPath, namePos);
 
-			if(cmd[j] == NULL) {
-				fprintf(stderr, "find: not enough memory\n");
+			if(paths == NULL) {
+				fprintf(stderr, "find: %s\n", strerror(errno));
                                 return EXIT_FAILURE;
 			}
 
-			strcpy(cmd[j], argv[i]);
-			cmdArgc++;
-			j++;
+			if((argc-namePos) > 2) {
+				fprintf(stderr, "find: too many arguments after `-name` option\n");
+                                return EXIT_FAILURE;
+			}else if((argc-namePos) < 2) {
+				fprintf(stderr, "find: missing argument to `-name`\n");
+                                return EXIT_FAILURE;
+			}
+
+			pattern = argv[namePos+1];
 		}
 
-		for(int i=0; i<nbPath; i++) {
-			find(path[i], cmd, cmdArgc);
+		if(nbPath == 1) { // There is no path given in the command line (use `.` in this case)
+			status = find(".", (char const* const*) cmds, nbCmd, pattern);
+		}else{
+			for(int i=1; i<nbPath; i++) {
+				if(find(paths[i], (char const* const*) cmds, nbCmd, pattern) < 0) {
+					status = EXIT_FAILURE;
+				}
+			}
 		}
 
-		for(int i=0; i<cmdArgc; i++) {
-			free(cmd[i]);
+		// Free all resources
+		if(cmds != NULL) {
+			for(int i=0; i<nbCmd; i++) {
+				free(cmds[i]);
+			}
+
+			free(cmds);
 		}
 
-		free(cmd);
+		if(paths != NULL) {
+			for(int i=0; i<nbPath; i++) {
+				free(paths[i]);
+			}
+
+			free(paths);
+		}
 	}else{
-		find(".", NULL);
+		find(".", NULL, 0, NULL);
 	}
+
+	return status;
 }
 
-int find(const char* path, char const* const* cmd, int cmdArgc) {
+int find(const char* path, char const* const* cmd, int cmdArgc, const char* pattern) {
 	int fd, n;
 	struct stat s;
 	struct dirent **dirs;
@@ -124,7 +140,7 @@ int find(const char* path, char const* const* cmd, int cmdArgc) {
 		return EXIT_FAILURE;
 	}
 
-	if(execute(path, cmd, cmdArgc) < 0) { // Execute current filename
+	if(execute(path, cmd, cmdArgc, pattern) < 0) { // Execute current filename
 		return EXIT_FAILURE;
 	}
 
@@ -154,11 +170,9 @@ int find(const char* path, char const* const* cmd, int cmdArgc) {
                 	strcat(concat, dirs[i]->d_name);
 
 			if(dirs[i]->d_type == DT_DIR) { // If the file considered is a directory
-				find(concat, cmd, cmdArgc);
+				find(concat, cmd, cmdArgc, pattern);
 			}else{
-				execute(concat, cmd, cmdArgc);
-
-				//printf("%s\n", concat);
+				execute(concat, cmd, cmdArgc, pattern);
 			}
 
 			free(dirs[i]);
@@ -171,7 +185,11 @@ int find(const char* path, char const* const* cmd, int cmdArgc) {
 	return EXIT_SUCCESS;
 }
 
-int execute(const char* path, char const* const* cmd, int cmdArgc) {
+int execute(const char* path, char const* const* cmd, int cmdArgc, const char* pattern) {
+	if(pattern != NULL && fnmatch(pattern, basename((char*) path), FNM_PATHNAME) == FNM_NOMATCH) {
+		return EXIT_FAILURE;
+	}
+
 	if(cmd == NULL) {
 		printf("%s\n", path);
 	}else{
@@ -179,7 +197,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 		char** cmdcp = (char**) malloc((cmdArgc + 1) * sizeof(char*));
 
 		if(cmdcp == NULL) {
-                	fprintf(stderr, "find: not enough memory\n");
+                	notEnoughMemory();
                 	return EXIT_FAILURE;
                	}
 
@@ -187,7 +205,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 			cmdcp[i] = (char*) malloc(strlen(cmd[i]));
 
 			if(cmdcp[i] == NULL) {
-                        	fprintf(stderr, "find: not enough memory\n");
+                        	notEnoughMemory();
                                	return EXIT_FAILURE;
                         }
 
@@ -197,7 +215,7 @@ int execute(const char* path, char const* const* cmd, int cmdArgc) {
 				cmdcp[i] = (char*) realloc(cmdcp[i], strlen(path) + 1);
 
 				if(cmdcp[i] == NULL) {
-					fprintf(stderr, "find: not enough memory\n");
+					notEnoughMemory();
 					return EXIT_FAILURE;
 				}
 
@@ -238,4 +256,82 @@ int containsAt(char const* const* array, int size, const char* str) {
 	}
 
 	return -1;
+}
+
+char** getCmdLineAfter(char const* const* array, int* size, int position) {
+	if(position < 0 || position >= (*size)) {
+		errno = EINVAL;
+		return NULL;
+	}
+
+	char** result = (char**) malloc(sizeof(char*));
+	int j=0;
+
+	if(result == NULL) {
+		errno = ENOMEM;
+		return NULL;
+	}
+
+	for(int i=position+1; i<(*size); i++) {
+		result = (char**) realloc(result, (i+1) * sizeof(char*));
+
+		if(result == NULL) {
+			errno = ENOMEM;
+			return NULL;
+		}
+
+		result[j] = (char*) malloc(strlen(array[i]));
+		strcpy(result[j], array[i]);
+
+		if(result[j] == NULL) {
+			errno = ENOMEM;
+			return NULL;
+		}
+
+		j++;
+	}
+
+	*size = j;
+	return result;
+}
+
+char** getCmdLineBefore(char const* const* array, int* size, int position) {
+	if(position < 0 || position >= (*size)) {
+		errno = EINVAL;
+		return NULL;
+	}
+
+	char** result = (char**) malloc(sizeof(char*));
+        int j=0;
+
+        if(result == NULL) {
+		errno = ENOMEM;
+                return NULL;
+        }
+
+        for(int i=0; i<position; i++) {
+                result = (char**) realloc(result, (i+1) * sizeof(char*));
+
+                if(result == NULL) {
+			errno = ENOMEM;
+                        return NULL;
+                }
+
+                result[j] = (char*) malloc(strlen(array[i]));
+		strcpy(result[j], array[i]);
+
+                if(result[j] == NULL) {
+			errno = ENOMEM;
+                        return NULL;
+                }
+
+                j++;
+        }
+
+        *size = j;
+        return result;
+}
+
+void notEnoughMemory() {
+	fprintf(stderr, "find: not enough memory\n");
 }

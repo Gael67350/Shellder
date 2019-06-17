@@ -8,6 +8,9 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#include <sys/stat.h>
+#include <fcntl.h>
+
 //library inclusion for pipes management
 #include <memory.h>
 
@@ -73,7 +76,7 @@ int main(int argc, char**argv)
     
     promptDisplay();
     loadedCommand = readCommand();
-    
+
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
       cd(loadedCommand.parameterCount, loadedCommand.parameters); 
@@ -108,6 +111,47 @@ int main(int argc, char**argv)
 
       if(pid == 0)
       {
+	if(loadedCommand.inputRedirected)
+	{
+	  int newInput = open(loadedCommand.IRedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  if(newInput != -1)
+	  {
+	    dup2(newInput,fileno(stdin));
+	  }
+	  else
+	  {
+	    printf("incorrect or existing file specified, can't perform redirection\n");
+	  }
+        }
+	
+	if(loadedCommand.outputRedirected)
+	{
+	  int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  if(newOutput != -1)
+	  {
+	    dup2(newOutput,fileno(stdout));	    
+	  }
+	  else
+	  {
+	    printf("incorrect or existing file specified, can't perform redirection\n");
+	  }
+
+        }
+
+	if(loadedCommand.errorRedirected)
+	{
+	  int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  if(newError != -1)
+	  {
+	    dup2(newError,fileno(stderr)); 
+	  }
+	  else
+	  {
+	    printf("incorrect or existing file specified, can't perform redirection\n");
+	  }
+
+        }
+	
 	execvp(loadedCommand.programName,loadedCommand.parameters);
 	printf("Program not found\n");
 	return 1;
