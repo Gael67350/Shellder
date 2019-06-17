@@ -73,28 +73,90 @@ CommandEntry readCommand()
   buildedCommand.errorRedirected = false;
 
 
-  //input redirection management
+  //redirection management from initial string
   buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
-  
-  //output redirection management
+
   buildedCommand.outputRedirected = getRedirectOutput(&finalCommand,&buildedCommand.ORedirectionPath);
+
+  if(!buildedCommand.inputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
+  }
   
+  buildedCommand.errorRedirected = getRedirectError(&finalCommand,&buildedCommand.ERedirectionPath);
+
+  if(!buildedCommand.inputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&finalCommand,&buildedCommand.IRedirectionPath);
+  }
+  
+  if(!buildedCommand.outputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&finalCommand,&buildedCommand.ORedirectionPath);
+  }
+  
+  //redirection management from input
   if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
   {
     buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
   }
 
-  if(!buildedCommand.inputRedirected && buildedCommand.inputRedirected)
+  if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+  
+  //redirection management from output
+  if(!buildedCommand.inputRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ORedirectionPath,&buildedCommand.IRedirectionPath);
+  }
+
+  if(!buildedCommand.errorRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.ORedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+
+
+  //parsing input again in case of input discover in the output
+  if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
   {
     buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
   }
 
-  //error redirection management
-  buildedCommand.errorRedirected = getRedirectError(&finalCommand,&buildedCommand.ERedirectionPath);
+  if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+
+  //parsing the error field
+  if(!buildedCommand.inputRedirected && buildedCommand.errorRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ERedirectionPath,&buildedCommand.IRedirectionPath);
+  }
+  
+  if(!buildedCommand.outputRedirected && buildedCommand.errorRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.ERedirectionPath,&buildedCommand.ORedirectionPath);
+  }
+  
+  //parsing input and output again if needed.
+
+  //redirection management from input
+  if(!buildedCommand.outputRedirected && buildedCommand.inputRedirected)
+  {
+    buildedCommand.outputRedirected = getRedirectOutput(&buildedCommand.IRedirectionPath,&buildedCommand.ORedirectionPath);
+  }
 
   if(!buildedCommand.errorRedirected && buildedCommand.inputRedirected)
   {
     buildedCommand.errorRedirected = getRedirectError(&buildedCommand.IRedirectionPath,&buildedCommand.ERedirectionPath);
+  }
+  
+  //redirection management from output
+  if(!buildedCommand.inputRedirected && buildedCommand.outputRedirected)
+  {
+    buildedCommand.inputRedirected = getRedirectInput(&buildedCommand.ORedirectionPath,&buildedCommand.IRedirectionPath);
   }
 
   if(!buildedCommand.errorRedirected && buildedCommand.outputRedirected)
