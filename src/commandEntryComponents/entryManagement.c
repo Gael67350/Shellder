@@ -24,6 +24,24 @@ void promptDisplay()
 
 }
 
+int checkEOF()
+{  
+    if(feof(stdin))
+    {
+      return 1;
+    }
+
+    int c = getc(stdin);
+
+    if(c == EOF)
+    {
+      return 1;
+    }
+    ungetc(c, stdin);
+    return 0;
+}
+
+
 CommandEntry readCommand()
 {
   char buffer[10];
@@ -36,11 +54,24 @@ CommandEntry readCommand()
   int readed;
   do
   {
+    if(checkEOF())
+    {
+      struct CommandEntry exitEntry;
+      exitEntry.programName = "exit";
+      return exitEntry;
+    }
+    
     fgets(buffer,10,stdin);
     readed = strlen(buffer);
 
     if(readed > 0)
     {
+      if(buffer[strlen(buffer)-1] == '\n' && strlen(buffer)== 1)
+      {
+	struct CommandEntry nullEntry;
+	nullEntry.programName = "null";
+	return nullEntry;
+      }
       if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\' && buffer[strlen(buffer)-2] != '&')
       {
 	buffer[strlen(buffer)-1] = '\0';
@@ -61,12 +92,13 @@ CommandEntry readCommand()
       finalCommand = realloc((void*)finalCommand,(strlen(finalCommand)+strlen(buffer))*sizeof(char));
       strcat(finalCommand,buffer);
     }
+
   }while(readed == strlen(buffer));
 
   // extract commands between pipes
   struct CommandEntry** cmds = (struct CommandEntry**) malloc(sizeof(struct CommandEntry*));
   int nbCmd = 0;
-
+  
   const char delim[2] = "|";
   char* token = strtok(finalCommand, delim);
 
@@ -87,7 +119,7 @@ CommandEntry readCommand()
     }
 
     token = strtok(NULL, delim);
-    nbCmd += 1;
+    nbCmd += 1; 
   }
 
   cmds[0]->background = background;
