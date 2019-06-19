@@ -95,6 +95,7 @@ int main(int argc, char**argv)
     }
     else
     {
+
       //management of external programs
       if(strchr(loadedCommand.programName,'/')== NULL)
       {
@@ -106,13 +107,22 @@ int main(int argc, char**argv)
 	loadedCommand.programName = programsPath;
 	programsPath = tmp;
       }
-
+      
       pid_t pid = fork();
 
+      int pipeFD[2];
+
+
+      if(loadedCommand.piped)
+      {
+	pipe(pipeFD);
+      }
+      
       if(pid == 0)
       {
+
 	if(loadedCommand.inputRedirected)
-	{
+        {
 	  int newInput = open(loadedCommand.IRedirectionPath,O_RDWR | O_CREAT | O_EXCL);
 	  if(newInput != -1)
 	  {
@@ -122,10 +132,15 @@ int main(int argc, char**argv)
 	  {
 	    printf("incorrect or existing file specified, can't perform redirection\n");
 	  }
-        }
+	}
+
 	
-	if(loadedCommand.outputRedirected)
+	if(loadedCommand.piped)
 	{
+	  dup2(pipeFD[0],fileno(stdout));
+        }
+	else if(loadedCommand.outputRedirected)
+        {
 	  int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
 	  if(newOutput != -1)
 	  {
@@ -136,10 +151,10 @@ int main(int argc, char**argv)
 	    printf("incorrect or existing file specified, can't perform redirection\n");
 	  }
 
-        }
+	}
 
 	if(loadedCommand.errorRedirected)
-	{
+        {
 	  int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
 	  if(newError != -1)
 	  {
@@ -150,7 +165,7 @@ int main(int argc, char**argv)
 	    printf("incorrect or existing file specified, can't perform redirection\n");
 	  }
 
-        }
+	}
 	
 	execvp(loadedCommand.programName,loadedCommand.parameters);
 	printf("Program not found\n");
@@ -165,6 +180,80 @@ int main(int argc, char**argv)
       else
       {
 	printf("job launched with pid : %d\n",pid);
+      }
+      
+      
+      while(loadedCommand.piped)
+      {
+
+	
+	//management of external programs
+	if(strchr(loadedCommand.programName,'/')== NULL)
+	{
+	  char* tmp = (char*)(malloc(4096*sizeof(char)));
+	
+	  tmp = strcpy(tmp,programsPath);
+	  strcat(programsPath,loadedCommand.programName);
+	  free(loadedCommand.programName);
+	  loadedCommand.programName = programsPath;
+	  programsPath = tmp;
+	}
+      
+	if(pid == 0)
+	{
+
+	  dup2(pipeFD[1],fileno(stdin));
+	
+	  if(loadedCommand.piped)
+	  {
+	    pipe(pipeFD);
+	  }
+      
+	  if(loadedCommand.piped)
+	  {
+	    dup2(pipeFD[0],fileno(stdout));
+	  }
+	  else if(loadedCommand.outputRedirected)
+	  {
+	    int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    if(newOutput != -1)
+	    {
+	      dup2(newOutput,fileno(stdout));	    
+	    }
+	    else
+	    {
+	      printf("incorrect or existing file specified, can't perform redirection\n");
+	    }
+
+	  }
+
+	  if(loadedCommand.errorRedirected)
+	  {
+	    int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    if(newError != -1)
+	    {
+	      dup2(newError,fileno(stderr)); 
+	    }
+	    else
+	    {
+	      printf("incorrect or existing file specified, can't perform redirection\n");
+	    }
+	  }
+	
+	  execvp(loadedCommand.programName,loadedCommand.parameters);
+	  printf("Program not found\n");
+	  return 1;
+	}
+	
+	if(!loadedCommand.background)
+	{
+	  int programStatus;
+	  wait(&programStatus);
+	}
+	else
+	{
+	  printf("job launched with pid : %d\n",pid);
+	}
       }
     }
   }

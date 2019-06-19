@@ -33,7 +33,7 @@ bool isSpecificFile(char*);
 void displayFileWithDetails(struct stat *, const char*, int, int, int, int);
 void displayFile(struct stat *, const char*);
 void displayFileList(struct dirent **, int, bool);
-int initList(struct dirent **, int, bool, int*, int*, int*, int*);
+unsigned long initList(struct dirent **, int, bool, int*, int*, int*, int*);
 bool contains(char const* const*, int, const char*);
 void notEnoughMemory();
 
@@ -197,7 +197,8 @@ void displayFileWithDetails(struct stat *s, const char* path, int nbDigitsFileSi
 	printf(" ");
 
 	// Print number of link
-	printf("%lu ", s->st_nlink);
+	unsigned long nbLinks = s->st_nlink;
+	printf("%lu ", nbLinks);
 
 	counter = 0;
         while(counter < (nbDigitsFileNLink-(floor(log10(abs(s->st_nlink))) + 1))) {
@@ -266,8 +267,8 @@ void displayFileList(struct dirent **dirs, int nbFile, bool hasAllArg) {
 	// Determine number of block used and init file list
 	int nbDigitsFileSize, nbDigitsFileUsr, nbDigitsFileGrp, nbDigitsFileNLink;
 
-        blkcnt_t nbBlockUsed = initList(dirs, nbFile, hasAllArg, &nbDigitsFileSize, &nbDigitsFileUsr, &nbDigitsFileGrp, &nbDigitsFileNLink);
-       	printf("total %ld\n", nbBlockUsed);
+        unsigned long nbBlockUsed = initList(dirs, nbFile, hasAllArg, &nbDigitsFileSize, &nbDigitsFileUsr, &nbDigitsFileGrp, &nbDigitsFileNLink);
+       	printf("total %lu\n", nbBlockUsed);
 
 	// Print file list
 	for(int i=0; i<nbFile; i++) {
@@ -286,8 +287,8 @@ void displayFileList(struct dirent **dirs, int nbFile, bool hasAllArg) {
 	}
 }
 
-int initList(struct dirent **dirs, int nbFile, bool hasAllArg, int* nbDigitsFileSize, int* nbDigitsFileUsr, int* nbDigitsFileGrp, int* nbDigitsFileNLink) {
-	blkcnt_t nbBlockUsed = 0;
+unsigned long initList(struct dirent **dirs, int nbFile, bool hasAllArg, int* nbDigitsFileSize, int* nbDigitsFileUsr, int* nbDigitsFileGrp, int* nbDigitsFileNLink) {
+	unsigned long nbBlockUsed = 0;
 
 	int maxDigitsFileSize = 0;
 	int maxDigitsFileUsr = 0;
