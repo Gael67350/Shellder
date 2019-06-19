@@ -99,7 +99,6 @@ int main(int argc, char**argv)
     }
     else
     {
-
       //management of external programs
       if(strchr(loadedCommand.programName,'/')== NULL)
       {
@@ -107,7 +106,7 @@ int main(int argc, char**argv)
 	
 	tmp = strcpy(tmp,programsPath);
 	strcat(programsPath,loadedCommand.programName);
-	free(loadedCommand.programName);
+	//free(loadedCommand->programName);
 	loadedCommand.programName = programsPath;
 	programsPath = tmp;
       }
@@ -196,7 +195,7 @@ int main(int argc, char**argv)
 	
 	  tmp = strcpy(tmp,programsPath);
 	  strcat(programsPath,loadedCommand.programName);
-	  free(loadedCommand.programName);
+	  //free(loadedCommand.programName);
 	  loadedCommand.programName = programsPath;
 	  programsPath = tmp;
 	}
