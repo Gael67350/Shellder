@@ -66,6 +66,12 @@ CommandEntry readCommand()
 
     if(readed > 0)
     {
+      if(buffer[strlen(buffer)-1] == '\n' && strlen(buffer)== 1)
+      {
+	struct CommandEntry nullEntry;
+	nullEntry.programName = "null";
+	return nullEntry;
+      }
       if(buffer[strlen(buffer)-1] == '\n' && buffer[strlen(buffer)-2] != '\\' && buffer[strlen(buffer)-2] != '&')
       {
 	buffer[strlen(buffer)-1] = '\0';

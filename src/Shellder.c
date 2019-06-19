@@ -93,6 +93,10 @@ int main(int argc, char**argv)
     {
       getEnv(loadedCommand.parameterCount, loadedCommand.parameters);
     }
+    else if(strcmp(loadedCommand.programName,"null") == 0)
+    {
+      printf("no command entered\n");
+    }
     else
     {
 
