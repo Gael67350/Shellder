@@ -76,7 +76,7 @@ int main(int argc, char**argv)
     
     promptDisplay();
     loadedCommand = readCommand();
-
+    
     if(strcmp(loadedCommand.programName,"cd")==0)
     {
       cd(loadedCommand.parameterCount, loadedCommand.parameters); 
@@ -182,11 +182,9 @@ int main(int argc, char**argv)
 	printf("job launched with pid : %d\n",pid);
       }
       
-      
       while(loadedCommand.piped)
       {
-
-	
+	printf("top\n");
 	//management of external programs
 	if(strchr(loadedCommand.programName,'/')== NULL)
 	{
@@ -258,7 +256,7 @@ int main(int argc, char**argv)
     }
   }
 
-  printf("quitting terminal, killing all child processes\n");
+  printf("\nquitting terminal, killing all child processes\n");
   signal(SIGQUIT, SIG_IGN);
   kill(0,SIGQUIT);
   printf("exit...\n");
