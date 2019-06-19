@@ -35,5 +35,8 @@ bool getRedirectError(char** entry, char** pathFound);
 bool getRedirectOutput(char** entry,char** pathFound);
 struct CommandEntry buildCommand(char* inputManaged);
 
+char *ltrim(char*);
+char *rtrim(char*);
+char *trim(char *str);
 
 #endif
