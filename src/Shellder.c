@@ -33,7 +33,7 @@ int main(int argc, char**argv)
   //splash screen
   
   printf("==========================================================================\n");
-  printf("                        WELCOME TO SHELLDER V 0.5                         \n");
+  printf("                        WELCOME TO SHELLDER V 1.0                         \n");
   printf("==========================================================================\n\n");
 
   printf("               _,.-'\"\"\"''--..._\n");
