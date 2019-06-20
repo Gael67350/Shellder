@@ -33,7 +33,7 @@ int main(int argc, char**argv)
   //splash screen
   
   printf("==========================================================================\n");
-  printf("                        WELCOME TO SHELLDER V 1.0                         \n");
+  printf("                        WELCOME TO SHELLDER V 2.0                         \n");
   printf("==========================================================================\n\n");
 
   printf("               _,.-'\"\"\"''--..._\n");
@@ -126,7 +126,7 @@ int main(int argc, char**argv)
 
 	if(loadedCommand.inputRedirected)
         {
-	  int newInput = open(loadedCommand.IRedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  int newInput = open(loadedCommand.IRedirectionPath,O_RDONLY);
 	  if(newInput != -1)
 	  {
 	    dup2(newInput,fileno(stdin));
@@ -145,6 +145,7 @@ int main(int argc, char**argv)
 	else if(loadedCommand.outputRedirected)
         {
 	  int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  fchmod(newOutput, S_IRWXU);
 	  if(newOutput != -1)
 	  {
 	    dup2(newOutput,fileno(stdout));	    
@@ -159,6 +160,7 @@ int main(int argc, char**argv)
 	if(loadedCommand.errorRedirected)
         {
 	  int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  fchmod(newError, S_IRWXU);
 	  if(newError != -1)
 	  {
 	    dup2(newError,fileno(stderr)); 
@@ -217,6 +219,7 @@ int main(int argc, char**argv)
 	  else if(loadedCommand.outputRedirected)
 	  {
 	    int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    fchmod(newOutput, S_IRWXU);
 	    if(newOutput != -1)
 	    {
 	      dup2(newOutput,fileno(stdout));	    
@@ -231,6 +234,7 @@ int main(int argc, char**argv)
 	  if(loadedCommand.errorRedirected)
 	  {
 	    int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    fchmod(newError, S_IRWXU);
 	    if(newError != -1)
 	    {
 	      dup2(newError,fileno(stderr)); 
