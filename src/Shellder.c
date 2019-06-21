@@ -189,7 +189,8 @@ int main(int argc, char**argv)
       
       while(loadedCommand.piped)
       {
-	printf("top\n");
+
+	loadedCommand = *loadedCommand.pipedCommand;
 	//management of external programs
 	if(strchr(loadedCommand.programName,'/')== NULL)
 	{
@@ -204,9 +205,8 @@ int main(int argc, char**argv)
       
 	if(pid == 0)
 	{
-
+	  
 	  dup2(pipeFD[1],fileno(stdin));
-	
 	  if(loadedCommand.piped)
 	  {
 	    pipe(pipeFD);
