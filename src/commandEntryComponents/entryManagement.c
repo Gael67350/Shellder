@@ -100,7 +100,8 @@ CommandEntry readCommand()
   int nbCmd = 0;
   
   const char delim[2] = "|";
-  char* token = strtok(finalCommand, delim);
+  char* saveptr;
+  char* token = strtok_r(finalCommand, delim, &saveptr);
 
   while(token != NULL) {
     cmds = (struct CommandEntry**) realloc(cmds, (nbCmd+1)*sizeof(struct CommandEntry*));
@@ -118,13 +119,13 @@ CommandEntry readCommand()
       pipedCommand.pipedCommand = cmds[nbCmd-1];
     }
 
-    token = strtok(NULL, delim);
+    token = strtok_r(NULL, delim, &saveptr);
     nbCmd += 1; 
   }
 
   cmds[0]->background = background;
 
-  return *(cmds[0]);
+  return *cmds[0];
 }
 
 struct CommandEntry buildCommand(char* inputManaged)
@@ -231,7 +232,8 @@ struct CommandEntry buildCommand(char* inputManaged)
     buildedCommand.errorRedirected = getRedirectError(&buildedCommand.ORedirectionPath,&buildedCommand.ERedirectionPath);
   }
 
-  char* programName = strtok(inputManaged," ");
+  char* saveptr;
+  char* programName = strtok_r(inputManaged, " ", &saveptr);
 
   char** parameters = (char**)(malloc(sizeof(char*)));
 
@@ -245,9 +247,8 @@ struct CommandEntry buildCommand(char* inputManaged)
 
   char* newParameter;
 
-  while((newParameter = strtok(NULL," ")) != NULL)
+  while((newParameter = strtok_r(NULL, " ", &saveptr)) != NULL)
   {
-
     if(strchr(newParameter,'"') == NULL)
     {
       parameters[parameterCount] = (char*)(malloc(strlen(newParameter)*sizeof(char)));
@@ -259,7 +260,7 @@ struct CommandEntry buildCommand(char* inputManaged)
       strcpy(parameters[parameterCount],++newParameter);
       strcat(parameters[parameterCount]," ");
 
-      while(((newParameter = strtok(NULL," ")) != NULL) && (strchr(newParameter,'"') == NULL))
+      while(((newParameter = strtok_r(NULL, " ", &saveptr)) != NULL) && (strchr(newParameter,'"') == NULL))
       {
 	parameters[parameterCount] = realloc((void*)parameters[parameterCount],(strlen(parameters[parameterCount])+strlen(newParameter)+1)*sizeof(char));
 	strcat(parameters[parameterCount],newParameter);

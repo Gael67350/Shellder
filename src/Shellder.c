@@ -33,7 +33,7 @@ int main(int argc, char**argv)
   //splash screen
   
   printf("==========================================================================\n");
-  printf("                        WELCOME TO SHELLDER V 1.0                         \n");
+  printf("                        WELCOME TO SHELLDER V 2.0                         \n");
   printf("==========================================================================\n\n");
 
   printf("               _,.-'\"\"\"''--..._\n");
@@ -99,7 +99,6 @@ int main(int argc, char**argv)
     }
     else
     {
-
       //management of external programs
       if(strchr(loadedCommand.programName,'/')== NULL)
       {
@@ -107,7 +106,7 @@ int main(int argc, char**argv)
 	
 	tmp = strcpy(tmp,programsPath);
 	strcat(programsPath,loadedCommand.programName);
-	free(loadedCommand.programName);
+	//free(loadedCommand->programName);
 	loadedCommand.programName = programsPath;
 	programsPath = tmp;
       }
@@ -127,7 +126,7 @@ int main(int argc, char**argv)
 
 	if(loadedCommand.inputRedirected)
         {
-	  int newInput = open(loadedCommand.IRedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  int newInput = open(loadedCommand.IRedirectionPath,O_RDONLY);
 	  if(newInput != -1)
 	  {
 	    dup2(newInput,fileno(stdin));
@@ -146,6 +145,7 @@ int main(int argc, char**argv)
 	else if(loadedCommand.outputRedirected)
         {
 	  int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  fchmod(newOutput, S_IRWXU);
 	  if(newOutput != -1)
 	  {
 	    dup2(newOutput,fileno(stdout));	    
@@ -160,6 +160,7 @@ int main(int argc, char**argv)
 	if(loadedCommand.errorRedirected)
         {
 	  int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	  fchmod(newError, S_IRWXU);
 	  if(newError != -1)
 	  {
 	    dup2(newError,fileno(stderr)); 
@@ -188,7 +189,8 @@ int main(int argc, char**argv)
       
       while(loadedCommand.piped)
       {
-	printf("top\n");
+
+	loadedCommand = *loadedCommand.pipedCommand;
 	//management of external programs
 	if(strchr(loadedCommand.programName,'/')== NULL)
 	{
@@ -196,16 +198,15 @@ int main(int argc, char**argv)
 	
 	  tmp = strcpy(tmp,programsPath);
 	  strcat(programsPath,loadedCommand.programName);
-	  free(loadedCommand.programName);
+	  //free(loadedCommand.programName);
 	  loadedCommand.programName = programsPath;
 	  programsPath = tmp;
 	}
       
 	if(pid == 0)
 	{
-
+	  
 	  dup2(pipeFD[1],fileno(stdin));
-	
 	  if(loadedCommand.piped)
 	  {
 	    pipe(pipeFD);
@@ -218,6 +219,7 @@ int main(int argc, char**argv)
 	  else if(loadedCommand.outputRedirected)
 	  {
 	    int newOutput = open(loadedCommand.ORedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    fchmod(newOutput, S_IRWXU);
 	    if(newOutput != -1)
 	    {
 	      dup2(newOutput,fileno(stdout));	    
@@ -232,6 +234,7 @@ int main(int argc, char**argv)
 	  if(loadedCommand.errorRedirected)
 	  {
 	    int newError = open(loadedCommand.ERedirectionPath,O_RDWR | O_CREAT | O_EXCL);
+	    fchmod(newError, S_IRWXU);
 	    if(newError != -1)
 	    {
 	      dup2(newError,fileno(stderr)); 
