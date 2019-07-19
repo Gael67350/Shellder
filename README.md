@@ -91,7 +91,7 @@ Par défaut, un fichier n’est affiché que si son nom ne commence pas par un p
 
 **Note : Il est possible de cumuler plusieurs options derrière un même caractère « - » (les expressions « -al » et « -la » permettent de fournir simultanément les options « -a » et « -l ».**
 
-####Recherche d'un fichier dans l'arborescence du système
+#### Recherche d'un fichier dans l'arborescence du système
 
 ```
 find [PATH]... [EXPRESSION]
@@ -109,3 +109,10 @@ Si aucune expression n’est fournie, find affiche le résultat dans la sortie s
 La commande se retourne avec le code de retour 0 si tous les fichiers ont pu être examinés correctement, et -1 si une erreur s’est produite.
 
 **Note : Les expressions « -name » et « -exec » peuvent être utilisées simultanément mais l’expression « -name » doit obligatoirement être utilisée avant l’expressions « -exec ».**
+
+### Licence
+
+Ce projet est sous licence GNU General Public License v3.0. Pour plus d'informations, consultez le fichier LICENSE.
+
+This project is licensed under GNU General Public License v3.0. For further informations take a look 
+at the LICENSE file.
